@@ -32,7 +32,8 @@ class HealthCheckInfo {
 class HealthCheckResultDto {
   @ApiProperty({
     example: 'ok',
-    description: 'The overall health status ("ok", "error", or "shutting_down")',
+    description:
+      'The overall health status ("ok", "error", or "shutting_down")',
   })
   status: string;
 

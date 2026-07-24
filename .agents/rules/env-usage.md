@@ -2,13 +2,18 @@
 trigger: always_on
 ---
 
-if you are trying to add or access sensitive data in the code directly by hard coding the values, then use the env for the values and use the nest config to access the values from the envs
+Always manage application settings and sensitive data through environment variables and Nest ConfigService. Never hardcode sensitive values or credentials directly in code.
 
-for example, 
-1. if trying to access values of the current port of the application use the following code to access,
-```
-  const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT') || 3000;
-```
+Environment & Configuration Rules:
 
-2. if trying to implement a feature that require a third party feature such as github access, then first add the sensitive data like github url, token, username, etc. to the `.env` file then use the data from the config.
+    Never hardcode sensitive data, credentials, third-party API keys, URLs, or runtime variables (e.g., GitHub tokens, ports, secret keys) directly in code.
+
+    Always add new variables to .env first, then map them inside src/config/app.config.ts to keep config centralized.
+
+    Always access environment variables using Nest's ConfigService rather than calling process.env directly.
+
+        Example (App Port):
+        const configService = app.get(ConfigService);
+        const port = configService.get<number>('PORT') || 3000;
+
+        Example (Third-Party Integration): For integrations like GitHub, store sensitive fields (GITHUB_TOKEN, GITHUB_URL, GITHUB_USERNAME) in .env, register them in app.config.ts, and retrieve them via ConfigService in your service classes.
