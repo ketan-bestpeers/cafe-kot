@@ -2,6 +2,7 @@ import { registerAs } from '@nestjs/config';
 
 export default registerAs('app', () => ({
   port: parseInt(process.env.PORT, 10) || 3000,
+  gstRate: parseFloat(process.env.GST_RATE) || 5.0,
   database: {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT, 10) || 5432,

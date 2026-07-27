@@ -7,6 +7,10 @@ import appConfig from './config/app.config';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MenuItemsModule } from './modules/menu-items/menu-items.module';
+import { TablesModule } from './modules/tables/tables.module';
+import { OrdersModule } from './modules/orders/orders.module';
+import { TicketsModule } from './modules/tickets/tickets.module';
+import { CouponsModule } from './modules/coupons/coupons.module';
 
 @Module({
   imports: [
@@ -32,6 +36,10 @@ import { MenuItemsModule } from './modules/menu-items/menu-items.module';
     UsersModule,
     AuthModule,
     MenuItemsModule,
+    TablesModule,
+    OrdersModule,
+    TicketsModule,
+    CouponsModule,
   ],
   controllers: [AppController],
   providers: [],
