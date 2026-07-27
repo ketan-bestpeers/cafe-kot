@@ -1,7 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import {
   HealthCheckService,
-  TypeOrmHealthIndicator,
   HealthCheck,
 } from '@nestjs/terminus';
 import {
@@ -13,22 +12,6 @@ import {
   ApiPropertyOptional,
 } from '@nestjs/swagger';
 
-class DatabaseHealthIndicatorResult {
-  @ApiProperty({
-    example: 'up',
-    description: 'The status of the database connection',
-  })
-  status: string;
-}
-
-class HealthCheckInfo {
-  @ApiProperty({
-    type: DatabaseHealthIndicatorResult,
-    description: 'Status of the database health indicator',
-  })
-  database: DatabaseHealthIndicatorResult;
-}
-
 class HealthCheckResultDto {
   @ApiProperty({
     example: 'ok',
@@ -38,10 +21,10 @@ class HealthCheckResultDto {
   status: string;
 
   @ApiPropertyOptional({
-    type: HealthCheckInfo,
+    type: Object,
     description: 'Details of the healthy indicators',
   })
-  info?: HealthCheckInfo;
+  info?: any;
 
   @ApiPropertyOptional({
     type: Object,
@@ -50,10 +33,10 @@ class HealthCheckResultDto {
   error?: any;
 
   @ApiProperty({
-    type: HealthCheckInfo,
+    type: Object,
     description: 'Detailed health status map of all indicators',
   })
-  details: HealthCheckInfo;
+  details: any;
 }
 
 @ApiTags('Health')
@@ -61,25 +44,24 @@ class HealthCheckResultDto {
 export class AppController {
   constructor(
     private health: HealthCheckService,
-    private db: TypeOrmHealthIndicator,
   ) {}
 
   @Get()
   @HealthCheck()
   @ApiOperation({
-    summary: 'Get API and database health status',
+    summary: 'Get API health status',
     description:
-      'Checks the health of the application and its connection to the PostgreSQL database.',
+      'Checks the health of the application.',
   })
   @ApiOkResponse({
-    description: 'Application and database are healthy',
+    description: 'Application is healthy',
     type: HealthCheckResultDto,
   })
   @ApiServiceUnavailableResponse({
-    description: 'Database or application is unhealthy',
+    description: 'Application is unhealthy',
     type: HealthCheckResultDto,
   })
   getHealth() {
-    return this.health.check([() => this.db.pingCheck('database')]);
+    return this.health.check([]);
   }
 }
