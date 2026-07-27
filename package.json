@@ -18,8 +18,7 @@
     "db:migrate:revert": "ts-node src/database/revert-migration.ts",
     "db:migrate:revert:prod": "node dist/database/revert-migration.js",
     "db:seed": "ts-node src/database/seeds/seed-admin.ts",
-    "db:seed:prod": "node dist/database/seeds/seed-admin.js",
-    "db:wait:prod": "node dist/database/wait-for-db.js"
+    "db:seed:prod": "node dist/database/seeds/seed-admin.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
