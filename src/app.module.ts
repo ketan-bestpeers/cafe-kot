@@ -28,6 +28,9 @@ import { CouponsModule } from './modules/coupons/coupons.module';
         username: configService.get<string>('app.database.username'),
         password: configService.get<string>('app.database.password'),
         database: configService.get<string>('app.database.database'),
+        ssl: configService.get<boolean>('app.database.ssl')
+          ? { rejectUnauthorized: false }
+          : false,
         autoLoadEntities: true,
         synchronize: true,
       }),

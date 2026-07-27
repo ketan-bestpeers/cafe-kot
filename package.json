@@ -14,8 +14,12 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix",
     "db:migrate": "ts-node src/database/run-migrations.ts",
+    "db:migrate:prod": "node dist/database/run-migrations.js",
     "db:migrate:revert": "ts-node src/database/revert-migration.ts",
-    "db:seed": "ts-node src/database/seeds/seed-admin.ts"
+    "db:migrate:revert:prod": "node dist/database/revert-migration.js",
+    "db:seed": "ts-node src/database/seeds/seed-admin.ts",
+    "db:seed:prod": "node dist/database/seeds/seed-admin.js",
+    "db:wait:prod": "node dist/database/wait-for-db.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
