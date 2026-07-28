@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Bill, PaymentMode } from '../entities/bill.entity';
 import { CouponResponseDto } from '../../coupons/dto/coupon-response.dto';
+import { DiscountType } from '../../coupons/entities/coupon.entity';
 
 export class BillResponseDto {
   @ApiProperty({
@@ -32,6 +33,19 @@ export class BillResponseDto {
     description: 'The coupon ID applied to this bill',
   })
   couponId?: string | null;
+
+  @ApiPropertyOptional({
+    enum: DiscountType,
+    example: DiscountType.PERCENTAGE,
+    description: 'Custom discount type applied to the bill (FLAT or PERCENTAGE)',
+  })
+  customDiscountType?: DiscountType | null;
+
+  @ApiPropertyOptional({
+    example: 10.0,
+    description: 'Custom discount value/rate applied (e.g. 10.00 for 10% or $10 flat discount)',
+  })
+  customDiscountValue?: number | null;
 
   @ApiProperty({
     example: 10.0,
@@ -92,6 +106,13 @@ export class BillResponseDto {
         ? parseFloat(bill.subtotal)
         : bill.subtotal;
     dto.couponId = bill.couponId;
+    dto.customDiscountType = bill.customDiscountType;
+    dto.customDiscountValue =
+      bill.customDiscountValue !== null && bill.customDiscountValue !== undefined
+        ? (typeof bill.customDiscountValue === 'string'
+            ? parseFloat(bill.customDiscountValue)
+            : bill.customDiscountValue)
+        : null;
     dto.discountAmount =
       typeof bill.discountAmount === 'string'
         ? parseFloat(bill.discountAmount)

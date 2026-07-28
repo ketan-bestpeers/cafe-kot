@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Order } from './order.entity';
-import { Coupon } from '../../coupons/entities/coupon.entity';
+import { Coupon, DiscountType } from '../../coupons/entities/coupon.entity';
 
 export enum PaymentMode {
   CASH = 'CASH',
@@ -75,6 +75,31 @@ export class Bill {
   })
   @Column({ type: 'uuid', nullable: true })
   couponId: string | null;
+
+  @ApiPropertyOptional({
+    enum: DiscountType,
+    example: DiscountType.PERCENTAGE,
+    description: 'Custom discount type applied to the bill (FLAT or PERCENTAGE)',
+  })
+  @Column({
+    type: 'enum',
+    enum: DiscountType,
+    nullable: true,
+  })
+  customDiscountType: DiscountType | null;
+
+  @ApiPropertyOptional({
+    example: 10.0,
+    description: 'Custom discount value/rate applied (e.g. 10.00 for 10% or $10 flat discount)',
+  })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    transformer: new ColumnNumericTransformer(),
+  })
+  customDiscountValue: number | null;
 
   @ApiProperty({
     example: 10.0,
