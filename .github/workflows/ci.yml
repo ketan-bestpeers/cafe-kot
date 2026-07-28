@@ -20,11 +20,12 @@ jobs:
       - name: Run Docker Compose Services
         env:
           PORT: 3000
-          DB_HOST_DOCKER: db
+          DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: 5432
-          DB_USERNAME: postgres
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_DATABASE: cafe_kot
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_SSL: "true"
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRATION: 24h
           SEED_ADMIN_EMAIL: ${{ secrets.SEED_ADMIN_EMAIL }}
