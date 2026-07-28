@@ -17,6 +17,7 @@ import { TicketStatus } from '../tickets/entities/ticket.entity';
 import { CouponsService } from '../coupons/coupons.service';
 import { GenerateBillDto } from './dto/generate-bill.dto';
 import { CompleteOrderDto } from './dto/complete-order.dto';
+import { DiscountType } from '../coupons/entities/coupon.entity';
 
 @Injectable()
 export class OrdersService {
@@ -357,22 +358,59 @@ export class OrdersService {
       }
       subtotal = Math.round(subtotal * 100) / 100;
 
+      // Validate custom discount inputs: if one is provided, both must be provided
+      const inputAmount = generateBillDto.discountAmount !== undefined
+        ? generateBillDto.discountAmount
+        : generateBillDto.amount;
+
+      if (
+        (generateBillDto.discountType && inputAmount === undefined) ||
+        (!generateBillDto.discountType && inputAmount !== undefined)
+      ) {
+        throw new BadRequestException(
+          'Both discountType and discount amount must be provided for a custom discount.',
+        );
+      }
+
       let coupon = null;
-      let discountAmount = 0;
+      let couponDiscountAmount = 0;
 
       if (generateBillDto.couponCode) {
         coupon = await this.couponsService.validateCoupon(
           generateBillDto.couponCode,
         );
         if (coupon.discountType === 'FLAT') {
-          discountAmount = coupon.discountValue;
+          couponDiscountAmount = coupon.discountValue;
         } else if (coupon.discountType === 'PERCENTAGE') {
-          discountAmount = (subtotal * coupon.discountValue) / 100;
+          couponDiscountAmount = (subtotal * coupon.discountValue) / 100;
         }
-        discountAmount = Math.round(discountAmount * 100) / 100;
-        if (discountAmount > subtotal) {
-          discountAmount = subtotal;
+        couponDiscountAmount = Math.round(couponDiscountAmount * 100) / 100;
+      }
+
+      let customDiscountType: DiscountType | null = null;
+      let customDiscountValue: number | null = null;
+      let customDiscountAmount = 0;
+
+      if (generateBillDto.discountType && inputAmount !== undefined) {
+        customDiscountType =
+          generateBillDto.discountType === 'percent'
+            ? DiscountType.PERCENTAGE
+            : DiscountType.FLAT;
+        customDiscountValue = inputAmount;
+
+        if (customDiscountType === DiscountType.FLAT) {
+          customDiscountAmount = customDiscountValue;
+        } else if (customDiscountType === DiscountType.PERCENTAGE) {
+          customDiscountAmount = (subtotal * customDiscountValue) / 100;
         }
+        customDiscountAmount = Math.round(customDiscountAmount * 100) / 100;
+      }
+
+      // Cap the total discount amount at subtotal
+      let discountAmount = couponDiscountAmount + customDiscountAmount;
+      discountAmount = Math.round(discountAmount * 100) / 100;
+      if (discountAmount > subtotal) {
+        discountAmount = subtotal;
       }
 
       const gstRate = this.configService.get<number>('app.gstRate') ?? 5.0;
@@ -387,6 +425,8 @@ export class OrdersService {
           orderId: order.id,
           subtotal,
           couponId: coupon ? coupon.id : null,
+          customDiscountType,
+          customDiscountValue,
           discountAmount,
           gstRate,
           gstAmount,
@@ -396,6 +436,8 @@ export class OrdersService {
         bill.subtotal = subtotal;
         bill.couponId = coupon ? coupon.id : null;
         bill.coupon = coupon;
+        bill.customDiscountType = customDiscountType;
+        bill.customDiscountValue = customDiscountValue;
         bill.discountAmount = discountAmount;
         bill.gstRate = gstRate;
         bill.gstAmount = gstAmount;

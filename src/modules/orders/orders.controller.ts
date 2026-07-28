@@ -21,6 +21,7 @@ import {
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
+  ApiParam,
 } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -93,6 +94,12 @@ export class OrdersController {
     description:
       'Retrieves complete details of an order session including its table info and all associated tickets.',
   })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    description: 'Unique identifier of the order session (UUID)',
+    example: 'a4d53896-fa3d-4c3d-b49d-b4b12e345678',
+  })
   @ApiOkResponse({
     description: 'Order details returned.',
     type: OrderResponseDto,
@@ -111,14 +118,20 @@ export class OrdersController {
   @ApiOperation({
     summary: 'Generate bill for order session',
     description:
-      'Calculates the order total, applies the given coupon code (if valid), computes GST, generates a bill, and transitions order status to BILL_GENERATED.',
+      'Calculates the order total, applies the given coupon code (if valid), computes GST, applies any custom discount (if specified), generates a bill, and transitions order status to BILL_GENERATED.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    description: 'Unique identifier of the active dining session order (UUID)',
+    example: 'a4d53896-fa3d-4c3d-b49d-b4b12e345678',
   })
   @ApiOkResponse({
     description: 'Bill successfully generated for the order.',
     type: OrderResponseDto,
   })
   @ApiBadRequestResponse({
-    description: 'Invalid coupon or not all tickets are served/cancelled.',
+    description: 'Invalid coupon, invalid custom discount inputs, or not all tickets are served/cancelled.',
   })
   @ApiUnauthorizedResponse({
     description: 'JWT authentication token is missing or invalid.',
@@ -141,6 +154,12 @@ export class OrdersController {
     summary: 'Void/cancel the generated bill',
     description:
       'Reverts the order status from BILL_GENERATED back to ACTIVE and soft-deletes the generated bill to allow editing/adding tickets.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    description: 'Unique identifier of the order session (UUID)',
+    example: 'a4d53896-fa3d-4c3d-b49d-b4b12e345678',
   })
   @ApiOkResponse({
     description: 'Bill successfully voided.',
@@ -167,6 +186,12 @@ export class OrdersController {
     summary: 'Complete order session',
     description:
       'Completes the order session, recording the chosen payment mode and paid timestamp, and sets the table status back to AVAILABLE.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    description: 'Unique identifier of the order session (UUID)',
+    example: 'a4d53896-fa3d-4c3d-b49d-b4b12e345678',
   })
   @ApiOkResponse({
     description: 'Order successfully completed.',
@@ -197,6 +222,12 @@ export class OrdersController {
     summary: 'Cancel order session',
     description:
       'Cancels the active order session, cancels all active/pending tickets, and sets the table status back to AVAILABLE.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    description: 'Unique identifier of the order session (UUID)',
+    example: 'a4d53896-fa3d-4c3d-b49d-b4b12e345678',
   })
   @ApiOkResponse({
     description: 'Order successfully cancelled.',
