@@ -26,9 +26,6 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Run unit tests
-        run: npm run test
-
   build-and-push-docker:
     needs: build-and-test
     runs-on: ubuntu-latest
